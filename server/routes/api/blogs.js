@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
     createdAt: new Date(),
     comments: ""
   });
-  res.status(201).send();
+  res.status(201).send("Posted");
 });
 
 async function loadBlogsCollection() {
