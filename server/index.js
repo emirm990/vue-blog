@@ -6,7 +6,7 @@ const app = express();
 
 // Middleware
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cors());
 
 const blogs = require('./routes/api/blogs');
