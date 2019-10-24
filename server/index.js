@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
+const path = require('path');
 const app = express();
 
 // Middleware
@@ -10,9 +10,9 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cors());
 
 const blogs = require('./routes/api/blogs');
-
+const blogsFront = require('./routes/api/blogsFrontPage');
 app.use('/api/blogs', blogs);
-
+app.use('/api/blogsFrontPage', blogsFront);
 // Handle production
 
 if (process.env.NODE_ENV === 'production') {
