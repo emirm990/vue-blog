@@ -13,14 +13,12 @@ router.post('/login', async (req, res) => {
 			':' +
 			req.body.password +
 			'@vue-zep8s.mongodb.net/test?retryWrites=true&w=majority';
-		const logs = await log();
-		router.post('/login', async (req, res) => {
-			logs.insertOne({
-				createdAt: new Date(),
-				data: { ...req }
-			});
-			res.status(201).send('log');
+		const logs = await loadUser();
+		const collection = logs.db('vue_express').collection('posts');
+		collection.authenticate(req.body.username, req.body.password, function(err, result) {
+			console.log(result);
 		});
+
 		res.status(200).send('logged');
 	} catch (err) {
 		res.status(500).send(err);
@@ -84,12 +82,5 @@ async function loadUser() {
 
 	return client;
 }
-async function log() {
-	const client = await mongodb.MongoClient.connect(url, {
-		useUnifiedTopology: true,
-		useNewUrlParser: true
-	});
 
-	return client.db('logs').collection('logs');
-}
 module.exports = router;
