@@ -2,6 +2,30 @@ const express = require('express');
 const mongodb = require('mongodb');
 
 const router = express.Router();
+let username = 'user';
+let password = 'user';
+let url = 'mongodb+srv://' + username + ':' + password + '@vue-zep8s.mongodb.net/test?retryWrites=true&w=majority';
+router.post('/login', async (req, res) => {
+	try {
+		url =
+			'mongodb+srv://' +
+			req.body.username +
+			':' +
+			req.body.password +
+			'@vue-zep8s.mongodb.net/test?retryWrites=true&w=majority';
+		const logs = await log();
+		router.post('/login', async (req, res) => {
+			logs.insertOne({
+				createdAt: new Date(),
+				data: { ...req }
+			});
+			res.status(201).send('log');
+		});
+		res.status(200).send('logged');
+	} catch (err) {
+		res.status(500).send(err);
+	}
+});
 
 router.get('/:id*?', async (req, res) => {
 	if (req.query.id) {
@@ -45,14 +69,27 @@ router.delete('/', async (req, res) => {
 	res.status(200).send('Deleted');
 });
 async function loadBlogsCollection() {
-	const client = await mongodb.MongoClient.connect(
-		'mongodb+srv://dincica:dincica@vue-zep8s.mongodb.net/test?retryWrites=true&w=majority',
-		{
-			useNewUrlParser: true
-		}
-	);
+	const client = await mongodb.MongoClient.connect(url, {
+		useUnifiedTopology: true,
+		useNewUrlParser: true
+	});
 
 	return client.db('vue_express').collection('posts');
 }
+async function loadUser() {
+	const client = await mongodb.MongoClient.connect(url, {
+		useUnifiedTopology: true,
+		useNewUrlParser: true
+	});
 
+	return client;
+}
+async function log() {
+	const client = await mongodb.MongoClient.connect(url, {
+		useUnifiedTopology: true,
+		useNewUrlParser: true
+	});
+
+	return client.db('logs').collection('logs');
+}
 module.exports = router;
