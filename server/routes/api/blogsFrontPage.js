@@ -11,6 +11,7 @@ async function loadBlogsCollection() {
 	const client = await mongodb.MongoClient.connect(
 		'mongodb+srv://user:user@vue-zep8s.mongodb.net/test?retryWrites=true&w=majority',
 		{
+			useUnifiedTopology: true,
 			useNewUrlParser: true
 		}
 	);

@@ -1,25 +1,18 @@
 const express = require('express');
 const mongodb = require('mongodb');
-
+const MongoClient = require('mongodb').MongoClient;
 const router = express.Router();
 let username = 'user';
 let password = 'user';
 let url = 'mongodb+srv://' + username + ':' + password + '@vue-zep8s.mongodb.net/test?retryWrites=true&w=majority';
 router.post('/login', async (req, res) => {
 	try {
-		url =
-			'mongodb+srv://' +
-			req.body.username +
-			':' +
-			req.body.password +
-			'@vue-zep8s.mongodb.net/test?retryWrites=true&w=majority';
-		const logs = await loadUser();
-		const collection = logs.db('vue_express').collection('posts');
-		collection.authenticate(req.body.username, req.body.password, function(err, result) {
-			console.log(result);
-		});
-
-		res.status(200).send('logged');
+		const response = await loadUser(req.body.username, req.body.password);
+		if (response.topology.s.connected) {
+			res.status(200).send('logged');
+		} else {
+			res.status(403).send('forbidden');
+		}
 	} catch (err) {
 		res.status(500).send(err);
 	}
@@ -63,8 +56,13 @@ router.post('/', async (req, res) => {
 
 router.delete('/', async (req, res) => {
 	const blogs = await loadBlogsCollection();
-	await blogs.deleteOne({ _id: new mongodb.ObjectID(req.body.id) });
-	res.status(200).send('Deleted');
+	try {
+		await blogs.deleteOne({ _id: new mongodb.ObjectID(req.body.id) });
+		res.status(200).send('Deleted');
+	} catch (err) {
+		console.log('mongo: ', err);
+		res.status(401).json({ data: 'forbidden' });
+	}
 });
 async function loadBlogsCollection() {
 	const client = await mongodb.MongoClient.connect(url, {
@@ -74,13 +72,23 @@ async function loadBlogsCollection() {
 
 	return client.db('vue_express').collection('posts');
 }
-async function loadUser() {
-	const client = await mongodb.MongoClient.connect(url, {
-		useUnifiedTopology: true,
-		useNewUrlParser: true
-	});
+async function loadUser(username, password) {
+	url = 'mongodb+srv://' + username + ':' + password + '@vue-zep8s.mongodb.net/test?retryWrites=true&w=majority';
+	try {
+		const client = await mongodb.MongoClient.connect(url, {
+			useUnifiedTopology: true,
+			useNewUrlParser: true,
+			connectTimeoutMS: 5000,
+			socketTimeoutMS: 500,
+			serverSelectionTimeoutMS: 5000
+		});
+		console.log(client);
+		return client;
+	} catch (err) {
+		return err;
+	}
 
-	return client;
+	//console.log(client);
 }
 
 module.exports = router;
