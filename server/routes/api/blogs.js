@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
 			title: req.body.title,
 			text: req.body.text,
 			createdAt: new Date(),
-			comments: ''
+			comments: []
 		});
 		res.status(201).send('Posted');
 	}
@@ -82,7 +82,6 @@ async function loadUser(username, password) {
 			socketTimeoutMS: 500,
 			serverSelectionTimeoutMS: 5000
 		});
-		console.log(client);
 		return client;
 	} catch (err) {
 		return err;
