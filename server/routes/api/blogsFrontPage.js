@@ -3,6 +3,12 @@ const mongodb = require('mongodb');
 
 const router = express.Router();
 
+router.get('/blog/:id', async (req, res) => {
+	console.log(req.params.id);
+	const blogs = await loadBlogsCollection();
+
+	res.send(await blogs.db('vue_express').collection('posts').findOne({ _id: new mongodb.ObjectID(req.params.id) }));
+});
 router.get('/:id*?:text*?', async (req, res) => {
 	if (req.query.id) {
 		const blogs = await loadBlogsCollectionComment();
